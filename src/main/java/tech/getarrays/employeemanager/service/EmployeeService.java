@@ -8,6 +8,7 @@ import tech.getarrays.employeemanager.repo.EmployeeRepo;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -27,10 +28,6 @@ public class EmployeeService {
 
     public List<Employee> findAllEmployees() {
         return employeeRepo.findAll();
-    }
-
-    public Employee updateEmployee(Employee employee) {
-        return employeeRepo.save(employee);
     }
 
     public Employee findEmployeeById(Long id) {

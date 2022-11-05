@@ -7,6 +7,7 @@ import tech.getarrays.employeemanager.model.Employee;
 import tech.getarrays.employeemanager.service.EmployeeService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/employee")
@@ -18,32 +19,31 @@ public class EmployeeResource {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Employee>> getAllEmployees () {
-        List<Employee> employees = employeeService.findAllEmployees();
-        return new ResponseEntity<>(employees, HttpStatus.OK);
+    public List<Employee> getAllEmployees() {
+        return employeeService.findAllEmployees();
     }
 
-    @GetMapping("/find/{id}")
-    public ResponseEntity<Employee> getEmployeeById (@PathVariable("id") Long id) {
-        Employee employee = employeeService.findEmployeeById(id);
-        return new ResponseEntity<>(employee, HttpStatus.OK);
+    @GetMapping("/{id}")
+    public Employee getEmployeeById (@PathVariable("id") Long id) {
+        return employeeService.findEmployeeById(id);
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Employee> addEmployee(@RequestBody Employee employee) {
-        Employee newEmployee = employeeService.addEmployee(employee);
-        return new ResponseEntity<>(newEmployee, HttpStatus.CREATED);
+    public Employee addEmployee(@RequestBody Employee employee) {
+        return employeeService.addEmployee(employee);
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<Employee> updateEmployee(@RequestBody Employee employee) {
-        Employee updateEmployee = employeeService.updateEmployee(employee);
-        return new ResponseEntity<>(updateEmployee, HttpStatus.OK);
+    @PutMapping("/update/{id}")
+    public Optional<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee employee) {
+        Employee updatedEmployee = employeeService.findEmployeeById(id);
+        return Optional.ofNullable(employeeService.addEmployee(employee));
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteEmployee(@PathVariable("id") Long id) {
-        employeeService.deleteEmployee(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public void deleteEmployee(@PathVariable("id") Long id) {
+        Employee deletedEmployee = employeeService.findEmployeeById(id);
+        if (deletedEmployee != null){
+            employeeService.deleteEmployee(id);
+        }
     }
 }
