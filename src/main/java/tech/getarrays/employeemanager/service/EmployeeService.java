@@ -2,27 +2,25 @@ package tech.getarrays.employeemanager.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import tech.getarrays.employeemanager.exception.UserNotFoundException;
+import tech.getarrays.employeemanager.exception.EmployeeNotFoundException;
 import tech.getarrays.employeemanager.model.Employee;
-import tech.getarrays.employeemanager.repo.EmployeeRepo;
+import tech.getarrays.employeemanager.repository.EmployeeRepository;
 
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @Transactional
 public class EmployeeService {
-    private final EmployeeRepo employeeRepo;
+    private final EmployeeRepository employeeRepo;
 
     @Autowired
-    public EmployeeService(EmployeeRepo employeeRepo) {
+    public EmployeeService(EmployeeRepository employeeRepo) {
         this.employeeRepo = employeeRepo;
     }
 
     public Employee addEmployee(Employee employee) {
-        employee.setEmployeeCode(UUID.randomUUID().toString());
         return employeeRepo.save(employee);
     }
 
@@ -32,10 +30,31 @@ public class EmployeeService {
 
     public Employee findEmployeeById(Long id) {
         return employeeRepo.findEmployeeById(id)
-                .orElseThrow(() -> new UserNotFoundException("User by id " + id + " was not found"));
+                .orElseThrow(() -> new EmployeeNotFoundException(id));
     }
 
     public void deleteEmployee(Long id){
-        employeeRepo.deleteEmployeeById(id);
+        Optional<Employee> deletedEmployee = employeeRepo.findEmployeeById(id);
+        if(deletedEmployee.isEmpty()){
+            throw new EmployeeNotFoundException(id);
+        } else {
+            employeeRepo.deleteEmployeeById(id);
+        }
+    }
+
+    public Optional<Employee> updateEmployee(Long id, Employee newEmployee) {
+        Optional<Employee> updatedEmployee = employeeRepo.findEmployeeById(id);
+        if (updatedEmployee.isEmpty()){
+            throw new EmployeeNotFoundException(id);
+        } else {
+            return updatedEmployee.map(employee -> {
+                employee.setName(newEmployee.getName());
+                employee.setPhone(newEmployee.getPhone());
+                employee.setEmail(newEmployee.getEmail());
+                employee.setJobTitle(newEmployee.getJobTitle());
+                employee.setImageUrl(newEmployee.getImageUrl());
+                return employeeRepo.save(employee);
+            });
+        }
     }
 }
