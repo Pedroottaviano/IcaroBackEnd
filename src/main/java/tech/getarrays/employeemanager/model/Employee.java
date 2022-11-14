@@ -16,6 +16,7 @@ public class Employee implements Serializable {
     private String phone;
     private String imageUrl;
 
+    private Boolean active;
     public Employee() {}
 
     public Employee(String name, String email, String jobTitle, String phone, String imageUrl, String employeeCode) {
